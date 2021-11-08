@@ -8,12 +8,14 @@ use crate::errors::ExecutionError;
 use crate::secret::{Password, PrivateKey};
 use crate::transaction::gas_price::GasPrice;
 use crate::transaction::{Account, TransactionBuilder};
+use primitive_types::H160;
 use web3::api::Web3;
 use web3::types::{
     Address, Bytes, CallRequest, RawTransaction, SignedTransaction, TransactionCondition,
     TransactionParameters, TransactionRequest, H256, U256,
 };
 use web3::Transport;
+use std::str::FromStr;
 
 impl<T: Transport> TransactionBuilder<T> {
     /// Build a prepared transaction that is ready to send.
@@ -167,14 +169,7 @@ async fn build_transaction_request_for_local_signing<T: Transport>(
     gas_price: GasPrice,
     options: TransactionRequestOptions,
 ) -> Result<TransactionRequest, ExecutionError> {
-    let from = match from {
-        Some(address) => address,
-        None => *web3
-            .eth()
-            .accounts()
-            .await?
-            .get(0)
-            .ok_or(ExecutionError::NoLocalAccounts)?,
+    let from = H160::from_str("02bcac94c537b1ca9e92d1a7f3ca6cbd25e0f67c")?;
     };
     let gas = resolve_gas_limit(&web3, from, gas_price, &options.0).await?;
     let gas_price = gas_price.resolve_for_transaction_request(&web3).await?;
